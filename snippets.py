@@ -35,16 +35,22 @@ def main():
 	put_parser.add_argument("name", help="Name of the snippet")
 	put_parser.add_argument("snippet", help="Snippet text")
 
+
+    get_parser = subparsers.add_parser("get", help="Retrieve a snippet")
+	get_parser.add_argument("name", help="Name of the snippet")
+
 	arguments = parser.parse_args()
 	# Convert parsed arguments from Namespace to dictionary
-	arguments = vars(arguments)
+	arguments = vars(arguments) ## how to use vars? vars() or vars()[].. seen both
+
+    ## is vars(name="list", snippet="A sequence of things - created using []") syntactic sugar for a dictionary created from optional args?
 	command = arguments.pop("command")
 
 	if command == "put":
 		name, snippet = put(**arguments)
 		print("Stored {!r} as {!r}".format(snippet, name))
 	elif command == "get":
-		snippet = get(**arguments)
+		snippet = get(**arguments) ## what's the diff between * vs **?
 		print("Retrieved snippet: {!r}".format(snippet))
 
 if __name__ == "__main__":
