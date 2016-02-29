@@ -11,7 +11,7 @@ def put(name, snippet):
     """Store a snippet with an associated name."""
     logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
     cursor = connection.cursor()
-    command = "insert into snippets values (%s, %s)"
+    command = 'INSERT into snippets values (%s, %s);'
     cursor.execute(command, (name, snippet))
     connection.commit()
     logging.debug("Snippet stored successfully.")
