@@ -1,16 +1,20 @@
 import logging
 import argparse
+import psycopg2
 
 logging.basicConfig(filename="snippets.log", level=logging.DEBUG)
-
+logging.debug("Connecting to PostgreSQL")
+connection = psycopg2.connection(database="snippets")
+logging.debug("Database connection established.")
 
 def put(name, snippet):
-    """
-    Store a snippet with an associated name.
-
-    Returns the name and the snippet
-    """
-    logging.error("FIXME: Unimplemented - put({!r}, {!r})".format(name, snippet))
+    """Store a snippet with an associated name."""
+    logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
+    cursor = connection.cursor()
+    command = "insert into snippets values (%s, %s)"
+    cursor.execute(command, (name, snippet))
+    connection.commit()
+    logging.debug("Snippet stored successfully.")
     return name, snippet
 
 def get(name):
@@ -34,11 +38,8 @@ def main():
 	put_parser = subparsers.add_parser("put", help="Store a snippet")
 	put_parser.add_argument("name", help="Name of the snippet")
 	put_parser.add_argument("snippet", help="Snippet text")
-
-
     get_parser = subparsers.add_parser("get", help="Retrieve a snippet")
 	get_parser.add_argument("name", help="Name of the snippet")
-
 	arguments = parser.parse_args()
 	# Convert parsed arguments from Namespace to dictionary
 	arguments = vars(arguments) ## how to use vars? vars() or vars()[].. seen both
