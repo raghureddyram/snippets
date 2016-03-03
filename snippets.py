@@ -25,12 +25,11 @@ def get(name):
     Returns the snippet.
     """
     cursor = connection.cursor()
-    command = 'SELECT keyword FROM snippets WHERE keyword = %s;'
-    cursor.execute(command, (name))
+    command = 'SELECT message FROM snippets WHERE keyword = %s;'
+    cursor.execute(command, (name,))
 
     logging.error("FIXME: Unimplemented - get({!r})".format(name))
-    value = cursor.fetchnone()
-    print(value)
+    value = cursor.fetchone()
     return value
 
 def main():
