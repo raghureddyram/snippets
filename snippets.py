@@ -13,15 +13,14 @@ def put(name, snippet):
     """Store a snippet with an associated name."""
     logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
     cursor = connection.cursor()
+    with connection, connection.cursor() as cursor: ## not sure how to refactor the exception here
+        try:
+            cursor.execute('INSERT into snippets values (%s, %s);', (name, snippet))
+        except psycopg2.IntegrityError as e:
+            connection.rollback() ## not able ot remove this line...
+            command = "update snippets set message=%s where keyword=%s"
+            cursor.execute(command, (snippet, name))
 
-    try:
-        command = 'INSERT into snippets values (%s, %s);'
-        cursor.execute(command, (name, snippet))
-    except psycopg2.IntegrityError as e:
-        connection.rollback()
-        command = "update snippets set message=%s where keyword=%s"
-        cursor.execute(command, (snippet, name))
-    connection.commit()
     logging.debug("Snippet stored successfully.")
     return name, snippet
 
@@ -30,12 +29,13 @@ def get(name):
     If there is no such snippet, return '404: Snippet Not Found'.
     Returns the snippet.
     """
-    cursor = connection.cursor()
-    command = 'SELECT message FROM snippets WHERE keyword = %s;'
-    cursor.execute(command, (name,))
+
+    with connection, connection.cursor() as cursor:
+        cursor.execute("select message from snippets where keyword=%s", (name,))
+        row = cursor.fetchone()
 
     logging.error("No snippet found for get({!r})".format(name))
-    value = cursor.fetchone() or ["404: Snippet Not Found"]
+    value = row or ["404: Snippet Not Found"]
     return value[0]
 
 def main():
