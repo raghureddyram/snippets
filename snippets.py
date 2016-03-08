@@ -12,12 +12,11 @@ cursor = connection.cursor()
 def put(name, snippet):
     """Store a snippet with an associated name."""
     logging.info("Storing snippet {!r}: {!r}".format(name, snippet))
-    cursor = connection.cursor()
-    with connection, connection.cursor() as cursor: ## not sure how to refactor the exception here
-        try:
+    try:
+        with connection, connection.cursor() as cursor:
             cursor.execute('INSERT into snippets values (%s, %s);', (name, snippet))
-        except psycopg2.IntegrityError as e:
-            connection.rollback() ## not able ot remove this line...
+    except psycopg2.IntegrityError as e:
+        with connection, connection.cursor() as cursor:
             command = "update snippets set message=%s where keyword=%s"
             cursor.execute(command, (snippet, name))
 
